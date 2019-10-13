@@ -10,10 +10,23 @@ private:
 	Movement_t* Movement;
 	BaseStrategy_t* CurrentStrategy;
 	ColorEnum CurrentAreaColor;
+
+	unsigned int start_time;
+
+	enum States {
+		WaitForStart,
+		LineForward,
+		Mountain,
+		CircleArena,
+		DropEnemy,
+		EnemyCircleArena,
+		TurnBackInCircle,
+		OutCircleArena,
+		Drop
+	} CurrentState;
 public:
 	StrategyManager_t(SensorManager_t* sensorManager, Movement_t* movement);
 	void Loop();
 };
 
 #endif
-

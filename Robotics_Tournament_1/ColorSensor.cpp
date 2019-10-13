@@ -1,25 +1,72 @@
-// 
-// 
-// 
-
 #include "ColorSensor.h"
 
-
-int ColorSensor_t::GetState(int s2PinState, int s3PinState) const {
-	digitalWrite(S2_PIN, s2PinState);
-	digitalWrite(S3_PIN, s3PinState);
-	return pulseIn(SENSOR_IN_PIN, LOW);
+float dist(const float a[3], const float b[3]) {
+	float res = 0;
+	for (int i = 0; i < 3; i++)
+		res += fabs(a[i] - b[i]);
+	return res;
 }
 
-ColorSensor_t::ColorSensor_t(int sensorPin, int s2Pin, int s3Pin) {
-	SENSOR_IN_PIN = sensorPin;
-	S2_PIN = s2Pin;
-	S3_PIN = s3Pin;
-	pinMode(SENSOR_IN_PIN, INPUT);
-	pinMode(S2_PIN, OUTPUT);
-	pinMode(S3_PIN, OUTPUT);
+ColorSensor_t::ColorSensor_t() {
+	apds.init();
+	apds.enableLightSensor(false);
+	delay(200);
 }
 
+ColorEnum ColorSensor_t::GetState() {
+	uint16_t redRaw, greenRaw, blueRaw, sum;
+	if (!apds.readRedLight(redRaw) ||
+		!apds.readGreenLight(greenRaw) ||
+		!apds.readBlueLight(blueRaw)
+	) {
+		return White;
+	}
+	sum = redRaw + greenRaw + blueRaw;
+
+	float minDist = 100, norm[3] = { redRaw / (float)sum, greenRaw / (float)sum, blueRaw / (float)sum };
+	/*
+	Serial.print("Red: ");
+	Serial.print(norm[0]);
+	Serial.print(" Green: ");
+	Serial.print(norm[1]);
+	Serial.print(" Blue: ");
+	Serial.println(norm[2]);
+	*/
+	ColorEnum res = Black;
+
+	float red[] = { 0.45, 0.27, 0.3 };
+	if (dist(norm, red) < minDist) {
+		minDist = dist(norm, red);
+		res = Red;
+	}
+
+	float green[] = { 0.25, 0.46, 0.29 };
+	if (dist(norm, green) < minDist) {
+		minDist = dist(norm, green);
+		res = Green;
+	}
+
+	float purple[] = { 0.25, 0.31, 0.45 };
+	if (dist(norm, purple) < minDist) {
+		minDist = dist(norm, purple);
+		res = Purple;
+	}
+
+	float yellow[] = { 0.32, 0.43, 0.25 }; // #ffff00
+	if (dist(norm, yellow) < minDist) {
+		minDist = dist(norm, yellow);
+		res = Yellow;
+	}
+
+	float white[] = { 0.33, 0.33, 0.33 };
+	if (dist(norm, white) < minDist) {
+		minDist = dist(norm, white);
+		res = White;
+	}
+
+	return res;
+}
+/*
 ColorEnum ColorSensor_t::GetState() const {
 	int red;
 	int blue;
@@ -58,3 +105,4 @@ ColorEnum ColorSensor_t::GetState() const {
 
 	return res;
 }
+*/

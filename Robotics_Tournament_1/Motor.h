@@ -7,7 +7,7 @@
 	#include "arduino.h"
 #else
 	#include "WProgram.h"
-#endif
+#endif 
 
 class Motor_t {
 private:
@@ -22,11 +22,8 @@ public:
 	Motor_t(int enablePin, int input1Pin, int input2Pin);
 
 	void SetSpeed(double speed);
-
 	double GetSpeed() const;
-
 	void SetDirection(int direction) const;
-
 	void DisableMotor() const;
 };
 

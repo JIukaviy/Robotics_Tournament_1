@@ -5,49 +5,56 @@
 #include "Movement.h"
 
 
-Movement_t::Movement_t(Wheel_t* leftWheel, Wheel_t* rightWheel, Chassis_t* chassis, double distanceBetweenWheels) {
-	LeftWheel = leftWheel;
-	RightWheel = rightWheel;
-	Chassis = chassis;
+Movement_t::Movement_t(Wheel_t** wheels, MineThrower_t* mineThrower, double distanceBetweenWheels) {
+	memcpy(Wheels, wheels, sizeof(Wheel_t*) * MOTOR_COUNT);
+
 	DistanceBetweenWheels = distanceBetweenWheels;
 	diff_coeff = 1;
 	ToLeft = false;
+	MineThrower = mineThrower;
+	forward_speed = 0;
 }
 
-void Movement_t::SetForwardSpeed(double speed) const {
+void Movement_t::SetForwardSpeed(double speed) {
 	if (ToLeft) {
-		RightWheel->SetForwardSpeed(speed);
-		LeftWheel->SetForwardSpeed(speed * diff_coeff);
+		Wheels[LEFT_WHEEL]->SetForwardSpeed(speed);
+		Wheels[RIGHT_WHEEL]->SetForwardSpeed(speed * diff_coeff);
 	} else {
-		LeftWheel->SetForwardSpeed(speed);
-		RightWheel->SetForwardSpeed(speed * diff_coeff);
+		Wheels[LEFT_WHEEL]->SetForwardSpeed(speed * diff_coeff);
+		Wheels[RIGHT_WHEEL]->SetForwardSpeed(speed);
 	}
+	forward_speed = speed;
 }
 
 void Movement_t::StopWheels() const {
-	LeftWheel->Stop();
-	RightWheel->Stop();
+	for (int i = 0; i < MOTOR_COUNT; i++) {
+		Wheels[i]->Stop();
+	}
 }
 
 void Movement_t::GoRotate(double rotateRadius, bool toLeft) {
-	int diff_coeff = (rotateRadius - DistanceBetweenWheels) / rotateRadius;
+	diff_coeff = (rotateRadius - DistanceBetweenWheels) / rotateRadius;
 	ToLeft = toLeft;
+}
+
+void Movement_t::SetRotateSpeed(double rotateSpeed) {
+	diff_coeff = 1 - min(abs(rotateSpeed), 1) * 2;
+	ToLeft = signbit(rotateSpeed);
+	//Serial.println(rotateSpeed);
+	//delay(50);
+	SetForwardSpeed(forward_speed);
 }
 
 void Movement_t::GoForward() {
 	diff_coeff = 1;
 }
 
-Chassis_t* Movement_t::GetChassis() const {
-	return Chassis;
+Wheel_t* Movement_t::GetWheel(int index) const {
+	return Wheels[index];
 }
 
-Wheel_t* Movement_t::GetLeftWheel() const {
-	return LeftWheel;
-}
-
-Wheel_t* Movement_t::GetRightWheel() const {
-	return RightWheel;
+MineThrower_t* Movement_t::GetMineThrower() const {
+	return MineThrower;
 }
 
 void Movement_t::Update() { }

@@ -13,9 +13,13 @@
 class IRSensor_t {
 private:
 	int SENSOR_PIN;
+	double MinVal = 0;
+	double MaxVal = 1;
 public:
 	IRSensor_t(int pin);
-	int GetState() const;
+	float GetState() const;
+	void SetMin(float val);
+	void SetMax(float val);
 };
 
 

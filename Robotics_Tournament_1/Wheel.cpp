@@ -18,7 +18,8 @@ void Wheel_t::SetAngleSpeed(double rotationsPerSecond) {
 }
 
 void Wheel_t::SetForwardSpeed(double distancePerSecond) {
-	TargetRotationsPerSecond = distancePerSecond / (2 * PI * WheelRadius);
+	//TargetRotationsPerSecond = distancePerSecond / (2 * PI * WheelRadius);
+	Motor->SetSpeed(distancePerSecond);
 }
 
 double Wheel_t::GetAngleSpeed() const {
@@ -35,6 +36,7 @@ double Wheel_t::GetForwardSpeed() const {
 
 void Wheel_t::Stop() {
 	TargetRotationsPerSecond = 0;
+	Motor->SetSpeed(0);
 }
 
 void Wheel_t::Update() {

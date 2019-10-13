@@ -9,6 +9,8 @@
 	#include "WProgram.h"
 #endif
 
+#include <SparkFun_APDS9960.h>
+
 enum ColorEnum {
 	White,
 	Black,
@@ -21,16 +23,10 @@ enum ColorEnum {
 
 class ColorSensor_t {
 private:
-	int SENSOR_IN_PIN;
-	int S2_PIN;
-	int S3_PIN;
-
-	int GetState(int s2PinState, int s3PinState) const;
-
+	SparkFun_APDS9960 apds;
 public:
-	ColorSensor_t(int sensorPin, int s2Pin, int s3Pin);
-
-	ColorEnum GetState() const;
+	ColorSensor_t();
+	ColorEnum GetState();
 };
 
 
